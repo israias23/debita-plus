@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="pt-BR" class="light">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Débita+ — Controle de Dívidas</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF7A00">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-app text-default">
+
+  <div id="biometric-modal" class="bio-modal hidden">
+    <div class="bio-content">
+
+      <div class="bio-icon">
+        <!-- Ícone SVG de Biometria -->
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 1C7 1 3 5 3 10V14C3 19 7 23 12 23C17 23 21 19 21 14V10C21 5 17 1 12 1Z" stroke="#ff7a00"
+            stroke-width="2" />
+          <path d="M8 10C8 7.8 9.8 6 12 6C14.2 6 16 7.8 16 10V14C16 16.2 14.2 18 12 18C9.8 18 8 16.2 8 14V10Z"
+            stroke="#ff7a00" stroke-width="2" />
+          <path d="M12 6V3" stroke="#ff7a00" stroke-width="2" stroke-linecap="round" />
+          <path d="M5 10H3" stroke="#ff7a00" stroke-width="2" stroke-linecap="round" />
+          <path d="M21 10H19" stroke="#ff7a00" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <h2>Acesso por  Biometria</h2>
+      <p class="bio-text">
+        Ative o desbloqueio por biometria (FaceID, Impressão Digital ou Windows Hello).
+      </p>
+
+      <button id="enable-biometric" class="bio-btn primary">Ativar Biometria</button>
+      <button id="close-bio" class="bio-btn secondary">Agora não</button>
+    </div>
+  </div>
+
+
+
+  <div id="splash-screen" class="splash">
+    <img src="assets/icons/icon-192.png" class="splash-icon">
+    <h1>Débita+</h1>
+  </div>
+
+  <div id="app-loading" class="loading-screen">
+    <div class="loader"></div>
+    <p>Carregando componentes...</p>
+  </div>
+
+
+  <!-- Toast area -->
+  <div id="toast-container" aria-live="polite" class="toast-container"></div>
+
+  <!-- LOGIN / REGISTER -->
+  <main id="auth-screen" class="auth-wrapper">
+    <div class="auth-card-new">
+
+      <div class="auth-header">
+        <img src="assets/icons/icon-192.png" class="auth-logo">
+        <h1>Débita+</h1>
+        <p class="subtitle">Controle financeiro inteligente</p>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="login-section" class="auth-section active">
+
+        <form id="login-form" class="auth-form">
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input id="login-email" type="email" placeholder="E-mail" required>
+          </div>
+
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input id="login-password" type="password" placeholder="Senha" required>
+          </div>
+
+          <button class="btn primary full mt" type="submit">Entrar</button>
+        </form>
+
+        <p class="line">---------- OU ----------</p>
+
+        <button id="google-login-btn" class="google-btn">
+          <img src="https://tse4.mm.bing.net/th/id/OIP.-t-xwSadzQYh0ZvS0vi5pAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3">
+          Entrar com Google
+        </button>
+        <button id="anonymous-login-btn" class="anon-btn">
+          <img src="https://i.pinimg.com/736x/54/61/13/54611315e6d4a2a5037109901538987b.jpg">
+          Entrar como Anônimo
+        </button>
+
+        <p class="switch-text">
+          Não tem conta?
+          <button id="show-register" class="switch-btn">Cadastre-se</button>
+        </p>
+      </div>
+
+      <!-- CADASTRO -->
+      <div id="register-section" class="auth-section">
+
+        <form id="register-form" class="auth-form">
+
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input id="register-name" type="text" placeholder="Seu nome" required>
+          </div>
+
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input id="register-email" type="email" placeholder="E-mail" required>
+          </div>
+
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input id="register-password" type="password" placeholder="Senha (mín. 6)" required>
+          </div>
+
+          <button class="btn primary full mt" type="submit">Criar Conta</button>
+        </form>
+
+        <p class="switch-text">
+          Já tem conta?
+          <button id="show-login" class="switch-btn">Entrar</button>
+        </p>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- APP ROOT -->
+  <div id="app-root" class="app-layout hidden">
+    <header class="app-header">
+      <div class="container-fluid row-between-center">
+        <div class="logo-row">
+          <img src="assets/icons/icon-192.png" alt="Débita+" class="logo">
+          <h1 class="text-primary">Débita+</h1>
+        </div>
+        <div class="row gap">
+          <button id="add-debt-button-header" class="btn primary">
+            <i class="fas fa-plus"></i>
+            <span class="ml-s">Nova Dívida</span>
+          </button>
+          <button id="settings-button" class="btn icon-btn">
+            <i class="fas fa-cog"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-content container-fluid">
+
+      <!-- PAGE HOME -->
+      <section id="page-home" class="page">
+        <div class="page-header">
+          <h2>Dashboard</h2>
+          <p class="muted" id="header-email">Carregando...</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <i class="fas fa-money-bill-wave text-primary"></i>
+            <p class="label">Dívida Total (Aberta)</p>
+            <h3 id="total-debt-value">R$ 0,00</h3>
+          </div>
+          <div class="metric-card">
+            <i class="fas fa-calendar-check text-accent"></i>
+            <p class="label">Próximo Vencimento</p>
+            <h3 id="next-due-date">--/--</h3>
+          </div>
+          <div class="metric-card">
+            <i class="fas fa-exclamation-triangle text-danger"></i>
+            <p class="label">Dívidas Abertas</p>
+            <h3 id="open-debts-count">0</h3>
+          </div>
+          <div class="metric-card">
+            <i class="fas fa-credit-card text-muted"></i>
+            <p class="label">Pagamento Mensal Médio</p>
+            <h3 id="monthly-payment-value">R$ 0,00</h3>
+          </div>
+        </div>
+
+        <!-- Charts and Upcoming Debts -->
+        <div class="home-layout mt">
+          <!-- Chart Card -->
+          <div class="card p debt-chart-card">
+            <h3 class="mb">Distribuição por Categoria</h3>
+            <div class="chart-container">
+              <canvas id="debtChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Upcoming Debts Card (Ajuste de Estilização) -->
+          <div class="card p upcoming-card">
+            <h3 class="mb row-between-center">Próximos Vencimentos (30 dias)</h3>
+            <div id="upcoming-debts-list" class="debt-list styled-list">
+              <!-- Dívidas serão renderizadas aqui -->
+              <p class="muted center-text">Carregando dívidas...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE DEBTS -->
+      <section id="page-debts" class="page hidden">
+        <div class="page-header">
+          <h2>Minhas Dívidas</h2>
+          <p class="muted">Gerencie todas as suas pendências financeiras.</p>
+        </div>
+
+        <div class="debts-controls card p-s row-between-center">
+          <select id="debt-filter" class="select-filter">
+            <option value="open">Abertas (Pendentes)</option>
+            <option value="paid">Pagas (Finalizadas)</option>
+            <option value="all">Todas as Dívidas</option>
+          </select>
+          <button id="add-debt-button-list" class="btn primary-outline ml">
+            <i class="fas fa-plus"></i>
+            <span class="ml-s">Adicionar</span>
+          </button>
+        </div>
+
+        <!-- Lista de Dívidas (Corpo) -->
+        <div id="all-debts-list" class="debt-list styled-list mt">
+          <!-- Dívidas serão renderizadas aqui -->
+          <p class="muted center-text">Carregando dívidas...</p>
+        </div>
+      </section>
+
+      <!-- PAGE GOALS (METAS) -->
+      <section id="page-goals" class="page hidden">
+        <div class="page-header">
+          <h2>Metas Financeiras</h2>
+          <p class="muted">Seu caminho para a liberdade financeira.</p>
+        </div>
+
+        <div class="card p center-text goal-placeholder">
+          <i class="fas fa-piggy-bank text-primary icon-large"></i>
+          <h3>Em Construção</h3>
+          <p class="muted">Em breve, você poderá definir e rastrear suas metas de economia e investimento aqui!</p>
+          <button class="btn primary mt">Definir Primeira Meta (Simulação)</button>
+        </div>
+      </section>
+
+      <!-- PAGE ACCOUNT -->
+      <section id="page-account" class="page hidden">
+        <div class="page-header">
+          <h2>Configurações</h2>
+          <p class="muted">Gerencie sua conta e preferências.</p>
+        </div>
+
+        <div class="card p">
+          <h3>Informações da Conta</h3>
+          <div class="info-list">
+            <div>
+              <p class="label">Nome</p>
+              <p id="setting-name">--</p>
+            </div>
+            <div>
+              <p class="label">E-mail</p>
+              <p id="setting-email">--</p>
+            </div>
+            <div>
+              <p class="label">ID de Usuário</p>
+              <p id="setting-id" class="code-text"></p>
+            </div>
+          </div>
+          <div class="mt row gap">
+            <button id="change-password-button" class="btn ghost full">Alterar Senha</button>
+            <button id="delete-account-button" class="btn danger-outline full">Excluir Conta</button>
+          </div>
+        </div>
+
+        <div class="card p mt">
+          <h3>Sair</h3>
+          <button id="mobile-logout-button" class="btn danger full">Sair da Conta</button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Floating Action Button (FAB)
+
+    <button id="add-debt-fab" class="fab primary" title="Adicionar Nova Dívida">
+        <i class="fas fa-plus"></i>
+    </button> -->
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+      <button class="nav-bottom active" data-page="home">
+        <i class="fas fa-chart-line"></i>
+        <span>Home</span>
+      </button>
+      <button class="nav-bottom" data-page="debts">
+        <i class="fas fa-list-ul"></i>
+        <span>Dívidas</span>
+      </button>
+      <button class="nav-bottom" data-page="goals">
+        <i class="fas fa-piggy-bank"></i>
+        <span>Metas</span>
+      </button>
+      <button class="nav-bottom" data-page="account">
+        <i class="fas fa-user-circle"></i>
+        <span>Conta</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ADD DEBT MODAL -->
+  <!-- MODAL ADICIONAR NOVA DÍVIDA (CORRIGIDO E COMPLETO) -->
+  <div id="add-debt-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel card debt-modal-panel">
+      <!-- HEADER DO MODAL -->
+      <div class="modal-header">
+        <h3>Adicionar Nova Dívida</h3>
+        <button id="close-add-debt" class="btn icon-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="add-debt-form" class="form-stack">
+        <!-- Nome da Dívida -->
+        <input name="debt-name" type="text" class="input" placeholder="Nome da Dívida Ex: Netflix" required>
+
+        <!-- Categoria -->
+        <label class="label-field" for="debt-category">Categoria</label>
+        <select id="debt-category" name="debt-category" class="input" required>
+          <option value="" disabled selected>Selecione uma categoria</option>
+          <option value="Cartão de Crédito">Cartão de Crédito</option>
+          <option value="Empréstimo">Empréstimo/Financiamento</option>
+          <option value="Contas">Contas (Água, Luz, Internet)</option>
+          <option value="Aluguel/Moradia">Aluguel/Moradia</option>
+          <option value="Educação">Educação</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Outros">Outros</option>
+        </select>
+
+        <!-- Valor Total da Dívida -->
+        <label class="label-field" for="debt-value">Valor da mesalidade (R$)</label>
+        <input name="debt-value" type="number" step="0.01" class="input" placeholder="Ex: 1200.00" required>
+
+        <!-- Data do Primeiro Vencimento -->
+        <label class="label-field" for="debt-due-date">Data do Primeiro Vencimento</label>
+        <input id="debt-due-date" name="debt-due-date" type="date" class="input" required>
+
+        <!-- Tipo de Dívida -->
+        <div class="form-group">
+          <label class="label-field">Tipo de Dívida:</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="debt-type" value="unica" checked>
+              <span>Única</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="debt-type" value="mensal">
+              <span>Parcelada (Mensal)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="debt-type" value="fixa">
+              <span>Recorrente (Fixa)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="debt-type" value="anual">
+              <span>Anual</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Campo condicional: Total de Parcelas (aparece só em Parcelada) -->
+        <div id="installments-wrapper" class="hidden mt-s">
+          <label class="label-field" for="debt-installments-total">Total de Parcelas</label>
+          <input id="debt-installments-total" type="number" min="2" max="360" class="input"
+            placeholder="Ex: 12 parcelas" required>
+        </div>
+
+        <!-- Botões -->
+        <div class="mt row gap">
+          <button class="btn primary full" type="submit">Salvar Dívida</button>
+          <button type="button" id="cancel-add-debt" class="btn ghost full">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL (Para telas maiores) -->
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel card p">
+      <div class="modal-header">
+        <h3>Configurações</h3>
+        <button id="close-settings-modal" class="btn icon-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="info-list">
+        <div>
+          <p class="label">Nome</p>
+          <p id="setting-name">--</p>
+        </div>
+        <div>
+          <p class="label">E-mail</p>
+          <p id="setting-email">--</p>
+        </div>
+        <div>
+          <p class="label">ID de Usuário</p>
+          <p id="setting-id" class="code-text"></p>
+        </div>
+      </div>
+      <div class="mt">
+        <button id="change-password-button" class="btn ghost full">Alterar senha</button>
+        <button id="mobile-logout-button-desktop" class="btn danger full mt-s">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div id="change-password-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel card p">
+      <div class="modal-header">
+        <h3>Alterar senha</h3>
+        <button id="close-change-password-icon" class="btn icon-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="change-password-form" class="form-stack">
+        <input id="current-password" type="password" class="input" placeholder="Senha atual" required>
+        <input id="change-new-password" type="password" class="input" placeholder="Nova senha" required>
+        <input id="change-confirm-new-password" type="password" class="input" placeholder="Confirme a nova" required>
+        <div class="mt row gap">
+          <button class="btn primary full" type="submit">Salvar</button>
+          <button id="close-change-password" class="btn ghost full" type="button">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL -->
+  <div id="custom-modal" class="modal hidden">
+    <div class="modal-panel card p">
+      <h3 id="modal-title"></h3>
+      <p id="modal-message" class="mt-s"></p>
+      <div id="modal-actions" class="mt row gap">
+        <!-- Buttons here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Script -->
+  <script src="biometrics.js"></script>
+  <script type="module" src="script.js"></script>
+  <!--<script>
+    (function(){
+    function c(){
+    var b=a.contentDocument||a.contentWindow.document;if(b){
+    var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={
+    r:'9a03cb1c0e0f1225',t:'MTc2MzQzMDM3OS4wMDAwMDA='
+    };var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body)
+    {var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())
+    }}}})();</script>-->
+</body>
+
+</html>
