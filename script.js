@@ -1,6 +1,3 @@
-// script.js - Débita+ v5.0 FINAL (Lógica Perfeita de Parcelas e Recorrentes)
-// Tudo funcionando 100% como apps profissionais (Nubank, Mobills, etc.)
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
@@ -361,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("settings-modal").classList.add("hidden");
     });
 
-    // Alternar login/cadastro
     // Alternar login <-> cadastro
     document.getElementById('show-register').addEventListener('click', () => {
         document.getElementById('login-section').classList.remove('active');
