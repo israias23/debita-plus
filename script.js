@@ -11,15 +11,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAfNZIeDhfZ-JgvhFmHPuLeyXDm8Pvf6iE",
-    authDomain: "debitaplus.firebaseapp.com",
-    projectId: "debitaplus",
-    storageBucket: "debitaplus.firebasestorage.app",
-    messagingSenderId: "172288027756",
-    appId: "1:172288027756:web:171dad6cfb9cf6806dfc49"
-};
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
